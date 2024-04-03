@@ -56,7 +56,7 @@
         "view_all_style": "solid",
         "enable_desktop_slider": false,
         "color_scheme": "scheme-3",
-        "image_ratio": "adapt",
+        "image_ratio": "portrait",
         "image_shape": "default",
         "show_secondary_image": true,
         "show_vendor": false,
@@ -67,10 +67,52 @@
         "padding_top": 44,
         "padding_bottom": 36
       }
+    },
+    "damir_TqRgKE": {
+      "type": "DAMIR",
+      "blocks": {
+        "title_exXNfC": {
+          "type": "title",
+          "settings": {
+            "heading_size": "h1"
+          }
+        },
+        "description_LGTC36": {
+          "type": "description",
+          "settings": {
+            "text_alignment": "left"
+          }
+        },
+        "price_xjNQdj": {
+          "type": "price",
+          "settings": {
+          }
+        }
+      },
+      "block_order": [
+        "title_exXNfC",
+        "description_LGTC36",
+        "price_xjNQdj"
+      ],
+      "settings": {
+        "product": "the-collection-snowboard-oxygen",
+        "color_scheme": "",
+        "secondary_background": false,
+        "media_size": "medium",
+        "constrain_to_viewport": true,
+        "media_fit": "contain",
+        "media_position": "left",
+        "image_zoom": "lightbox",
+        "hide_variants": false,
+        "enable_video_looping": false,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
     }
   },
   "order": [
     "image_banner",
-    "featured_collection"
+    "featured_collection",
+    "damir_TqRgKE"
   ]
 }
