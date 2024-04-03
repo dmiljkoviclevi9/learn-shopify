@@ -179,7 +179,6 @@
                 >
                   {{ product.description }}
                 </div>
-                
               {%- when 'price' -%}
                 <div class="no-js-hidden" id="price-{{ section.id }}" role="status" {{ block.shopify_attributes }}>
                   {%- render 'price',
@@ -212,14 +211,11 @@
                     {%- endform -%}
                   </div>
                 {%- endif -%}
-                
+              {%- when 'list' -%}
                 {% assign product_features = product.metafields.custom.product_features %}
                 {% if product_features %}
-                  <div class="product-features">
-                    <p>{{ product_features }}</p>
-                  </div>
-                {% endif %}
-
+                  <div id="product-features" data-features="{{ product_features | escape }}"></div>
+                {% endif %}                
               {%- when 'sku' -%}
                 <p
                   class="product__sku no-js-hidden{% if block.settings.text_style == 'uppercase' %} caption-with-letter-spacing{% elsif block.settings.text_style == 'subtitle' %} subtitle{% endif %}{% if product.selected_or_first_available_variant.sku.size == 0 %} visibility-hidden{% endif %}"
@@ -722,6 +718,23 @@
       }
     }
   });
+  document.addEventListener('DOMContentLoaded', function() {
+    var featuresContainer = document.getElementById('product-features');
+    if (featuresContainer) {
+      var featuresData = featuresContainer.getAttribute('data-features');
+      try {
+        var features = JSON.parse(featuresData);
+        var listHtml = '<ul>';
+        features.forEach(function(feature) {
+          listHtml += '<li>' + feature + '</li>';
+        });
+        listHtml += '</ul>';
+        featuresContainer.innerHTML = listHtml;
+      } catch(e) {
+        console.error('Error parsing product features:', e);
+      }
+    }
+  });
 </script>
 
 {% if product.media.size > 0 %}
@@ -831,6 +844,18 @@
       "type": "price",
       "name": "t:sections.DAMIR.blocks.price.name",
       "limit": 1
+    },
+    {
+      "type": "list",
+      "name": "product_features",
+      "settings": [
+        {
+          "type": "text",
+          "id": "product_features",
+          "label": "Product Features",
+          "default": "Product Features"
+        }
+      ]
     },
     {
       "type": "sku",
@@ -1742,6 +1767,9 @@
         },
         {
           "type": "price"
+        }, 
+        {
+          "type": "list"
         }
       ]
     }
