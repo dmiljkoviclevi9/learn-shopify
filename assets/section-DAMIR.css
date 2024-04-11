@@ -74,24 +74,88 @@
     z-index: 1;
   }
 }
+.product__description {
+  max-height: 27rem;
+  overflow-y: scroll;
+  position: relative;
+  font-size: 1.4rem;
 
-.text-align-left, .text-align-left p, .text-align-left * {
-  text-align: left;
+  /* Custom scrollbar styling for WebKit browsers */
+  &::-webkit-scrollbar {
+    width: 10px; /* Width of the scrollbar */
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #469dcd3b ; /* Color of the track */
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #ffffff39; /* Color of the scrollbar thumb */
+    border-radius: 5px; /* Rounded corners on the scrollbar thumb */
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #00000040; /* Color of the scrollbar thumb when hovered */
+  }
 }
 
-.text-align-center, .text-align-center p, .text-align-center * { 
-  text-align: center;
-}
+  .text-align-left, .text-align-left p, .text-align-left * {
+    text-align: left;
+  }
 
-.text-align-right, .text-align-right p, .text-align-right * {
-  text-align: right;
-}
+  .text-align-center, .text-align-center p, .text-align-center * { 
+    text-align: center;
+  }
 
-.product-features ul {
-  list-style-type: disc;
-  padding-left: 20px;
-}
+  .text-align-right, .text-align-right p, .text-align-right * {
+    text-align: right;
+  }
 
-.product-features li {
-  margin-bottom: 10px;
-}
+  .product-features ul {
+    list-style-type: disc;
+    padding-left: 20px;
+  }
+
+  .product-features li {
+    margin-bottom: 10px;
+  }
+
+  .thumbnails-carousel {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+  }
+
+  .thumbnails-wrapper {
+    overflow: hidden;
+    display: flex;
+    width: 600px;
+  }
+
+  .custom-thumbnails-container {
+    display: flex;
+    transition: transform 0.3s ease;
+  }
+
+  .custom-thumbnail {
+    flex: 0 0 auto;
+    margin-right: 10px; 
+    cursor: pointer;
+    width: 150px;
+    height: auto;
+  }
+
+  .active-thumbnail {
+    border: 5px solid #a0beff;
+    box-sizing: border-box;
+  }
+
+  .custom-thumbnail:hover {
+    opacity: 0.8; 
+    border: 2px solid #000000;
+  }
+
+  .carousel-prev, .carousel-next {
+    cursor: pointer;
+    user-select: none;
+  }
