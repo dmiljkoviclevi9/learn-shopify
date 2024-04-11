@@ -99,11 +99,11 @@
                 endfor
               -%}
               {%- for media in product.media -%}
-                {%- if media_to_render contains media.id
-                  and media.id != product.selected_or_first_available_variant.featured_media.id
+                  {%- if media_to_render contains media.id
+                    and media.id != product.selected_or_first_available_variant.featured_media.id
                 -%}
-                  <div class="product__media-item" data-media-id="{{ section.id }}-{{ media.id }}">
-                    {% render 'product-thumbnail',
+                <div class="product__media-item main-image" data-media-id="{{ section.id }}-{{ media.id }}">
+                    {% render 'product-thumbnail-DAMIR',
                       media: media,
                       position: forloop.index,
                       loop: section.settings.enable_video_looping,
@@ -142,6 +142,27 @@
             </button>
           {%- endif -%}
         </media-gallery>
+        <div class="thumbnails-carousel">
+          <button class="carousel-prev">&#10094;</button>
+          <div class="thumbnails-wrapper">
+            <div class="custom-thumbnails-container">
+              {% for media in product.media %}
+                  {% render 'custom-thumbnail',
+                    media: media,
+                    position: forloop.index,
+                    loop: section.settings.enable_video_looping,
+                    modal_id: section.id,
+                    xr_button: false,
+                    media_width: media_width,
+                    media_fit: section.settings.media_fit,
+                    constrain_to_viewport: section.settings.constrain_to_viewport
+                  %}
+              {% endfor %}
+              {% comment %} <img class="custom-thumbnail" src="{{ image | image_url: width: 150 }}" alt="{{ image.alt | escape }}" data-image="{{ image | image_url: width: 1024 }}" width="150" height="150" > {% endcomment %}
+            </div>
+          </div>
+          <button class="carousel-next">&#10095;</button>
+        </div>        
       </div>
       <div class="product__info-wrapper grid__item{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}">
         <product-info
@@ -193,7 +214,7 @@
                     <span>{{ 'products.product.volume_pricing.note' | t }}</span>
                   </div>
                 {%- endif -%}
-                {% comment %} {%- if cart.taxes_included or shop.shipping_policy.body != blank -%}
+                {%- if cart.taxes_included or shop.shipping_policy.body != blank -%}
                   <div class="product__tax caption rte">
                     {%- if cart.taxes_included -%}
                       {{ 'products.product.include_taxes' | t }}
@@ -202,7 +223,7 @@
                       {{ 'products.product.shipping_policy_html' | t: link: shop.shipping_policy.url }}
                     {%- endif -%}
                   </div>
-                {%- endif -%} {% endcomment %}
+                {%- endif -%}
                 {%- if product != blank -%}
                   <div {{ block.shopify_attributes }}>
                     {%- form 'product', product -%}
@@ -211,10 +232,14 @@
                     {%- endform -%}
                   </div>
                 {%- endif -%}
-              {%- when 'list' -%}
+              {%- when 'metafields-list' -%}
                 {% assign product_features = product.metafields.custom.product_features %}
                 {% if product_features %}
-                  <div id="product-features" data-features="{{ product_features | escape }}"></div>
+                  <ul id="product-features" style="font-size:{{ block.settings.fontsize }}" data-features="{{ product_features | escape }}">
+                  {% for feature in product_features.value limit: block.settings.limit %}
+                    <li> {{feature}} </li>
+                  {% endfor %}
+                </ul>
                 {% endif %}                
               {%- when 'sku' -%}
                 <p
@@ -462,11 +487,9 @@
                 {% assign share_url = product.selected_variant.url | default: product.url | prepend: request.origin %}
                 {% render 'share-button', block: block, share_link: share_url %}
               {%- when 'variant_picker' -%}
-                {% render 'product-variant-picker',
-                  product: product,
-                  block: block,
-                  product_form_id: product_form_id,
-                  update_url: false
+                {% render 'color-swatch', 
+                  product: product
+                  settings: block.settings
                 %}
               {%- when 'buy_buttons' -%}
                 {%- render 'buy-buttons',
@@ -564,7 +587,7 @@
                   {%- if media_to_render contains media.id
                     and media.id != product.selected_or_first_available_variant.featured_media.id
                   -%}
-                    <div class="product__media-item" data-media-id="{{ section.id }}-{{ media.id }}">
+                    <div class="product__media-item main-image" data-media-id="{{ section.id }}-{{ media.id }}">
                       {% render 'product-thumbnail',
                         media: media,
                         position: forloop.index,
@@ -702,6 +725,8 @@
       hiddenInput.value = event.currentTarget.value;
     });
   });
+</script>
+<script>
   document.addEventListener('DOMContentLoaded', function() {
     var description = document.querySelector('.product__description');
 
@@ -718,6 +743,9 @@
       }
     }
   });
+</script>
+  {% comment %} 
+<script>
   document.addEventListener('DOMContentLoaded', function() {
     var featuresContainer = document.getElementById('product-features');
     if (featuresContainer) {
@@ -734,8 +762,168 @@
         console.error('Error parsing product features:', e);
       }
     }
+  }); 
+</script>{% endcomment %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    function filterCarouselItems(selectedColorValue) {
+      const allMediaItems = document.querySelectorAll('.custom-thumbnails-container img');
+      let firstVisibleSet = false;
+  
+      allMediaItems.forEach(item => {
+        const imgAlt = item.alt.toLowerCase();
+        if (imgAlt === selectedColorValue.toLowerCase()) {
+          item.style.display = 'block'; // Make sure the image is visible
+          // If this is the first visible image after filtering, set it as active or focus
+          if (!firstVisibleSet) {
+            // Here you might need to adjust based on how your carousel indicates an active image
+            // This could involve adding a class, calling a carousel method, etc.
+            setActiveImage(item);
+            firstVisibleSet = true;
+          }
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+  
+    // Function to set the active image in the carousel
+    function setActiveImage(image) {
+      // Example: Scroll to the image if your carousel doesn't automatically handle this
+      image.scrollIntoView({behavior: "smooth", block: "nearest", inline: "start"});
+      image.classList.add('active-thumbnail');
+    }
+  
+    document.querySelectorAll('.color-swatches input[type="radio"]').forEach(input => {
+      input.addEventListener('change', function() {
+        filterCarouselItems(this.value);
+      });
+    });
+  
+    // Initial setup
+    const initialSelectedColor = document.querySelector('.color-swatches input[type="radio"]:checked').value;
+    filterCarouselItems(initialSelectedColor);
   });
+  </script>
+  
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const container = document.querySelector('.custom-thumbnails-container');
+    const prevButton = document.querySelector('.carousel-prev');
+    const nextButton = document.querySelector('.carousel-next');
+
+      let scrollAmount = 160 * 2;
+      let translateX = 0;
+
+      prevButton.addEventListener('click', function() {
+        console.log("prev button clicked");
+        if (translateX < 0) {
+          translateX += scrollAmount;
+          container.style.transform = `translateX(${translateX}px)`;
+        }
+      });
+
+      nextButton.addEventListener('click', function() {
+        let containerWidth = container.scrollWidth;
+        let parentWidth = container.parentNode.offsetWidth;
+        if (Math.abs(translateX) < (containerWidth - parentWidth)) {
+          translateX -= scrollAmount;
+          container.style.transform = `translateX(${translateX}px)`;
+        }
+      });
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const thumbnails = document.querySelectorAll('.custom-thumbnail');
+    
+    // Extracted function to update the main image
+    function updateMainImage(newImageUrl, newImageSet) {
+      const mainImage = document.getElementById('DAMIR-main-image');
+      mainImage.src = newImageUrl;
+      mainImage.removeAttribute('srcset');
+      mainImage.setAttribute('srcset', newImageSet);
+    }
+  
+    thumbnails.forEach(thumbnail => {
+      thumbnail.addEventListener('click', function() {
+        thumbnails.forEach(thumb => thumb.classList.remove('active-thumbnail'));
+        this.classList.add('active-thumbnail');
+        
+        const newImageUrl = this.getAttribute('src');
+        const newImageSet = this.getAttribute('srcset');
+        
+        updateMainImage(newImageUrl, newImageSet);
+      });
+    });
+  
+    // Function to select the correct thumbnail based on swatch selection
+    function selectThumbnailBasedOnSwatch(selectedColorValue) {
+      // Example: find the first thumbnail with a matching alt attribute
+      const thumbnailToActivate = Array.from(thumbnails).find(thumb => 
+        thumb.alt.toLowerCase() === selectedColorValue.toLowerCase()
+      );
+      
+      if (thumbnailToActivate) {
+        thumbnailToActivate.click(); // Simulate a click
+      } else {
+        // Fallback to the first thumbnail if no matching alt is found
+        thumbnails[0].click();
+      }
+    }
+  
+    document.querySelectorAll('.color-swatches input[type="radio"]').forEach(input => {
+      input.addEventListener('change', function() {
+        selectThumbnailBasedOnSwatch(this.value);
+      });
+    });
+  
+    // Optionally, automatically select a thumbnail based on the initially selected swatch
+    const initialSelectedColorValue = document.querySelector('.color-swatches input[type="radio"]:checked').value;
+    selectThumbnailBasedOnSwatch(initialSelectedColorValue);
+  });
+  
+
+  document.addEventListener('keydown', function(event) {
+    const activeThumbnail = document.querySelector('.active-thumbnail');
+    let newActiveThumbnail;
+  
+    if (event.key === 'ArrowRight') { // For right arrow key
+      newActiveThumbnail = activeThumbnail.nextElementSibling;
+      if (!newActiveThumbnail) {
+        // If there is no next sibling, wrap to the first thumbnail
+        newActiveThumbnail = document.querySelectorAll('.custom-thumbnail')[0];
+      }
+    } else if (event.key === 'ArrowLeft') { // For left arrow key
+      newActiveThumbnail = activeThumbnail.previousElementSibling;
+      if (!newActiveThumbnail) {
+        // If there is no previous sibling, wrap to the last thumbnail
+        const thumbnails = document.querySelectorAll('.custom-thumbnail');
+        newActiveThumbnail = thumbnails[thumbnails.length - 1];
+      }
+    }
+  
+    if (newActiveThumbnail) {
+      newActiveThumbnail.click();
+  
+      // Scroll the new active thumbnail into view
+      newActiveThumbnail.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center'
+      });
+    }
+  }); 
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const firstThumbnail = document.querySelector('.custom-thumbnail');
+    if (firstThumbnail) {
+        firstThumbnail.click();
+    }
+});
+      
 </script>
+
 
 {% if product.media.size > 0 %}
   <script src="{{ 'product-modal.js' | asset_url }}" defer="defer"></script>
@@ -846,14 +1034,42 @@
       "limit": 1
     },
     {
-      "type": "list",
-      "name": "product_features",
+      "type": "metafields-list",
+      "name": "Product features",
       "settings": [
         {
-          "type": "text",
-          "id": "product_features",
-          "label": "Product Features",
-          "default": "Product Features"
+          "type": "number",
+          "id": "limit",
+          "label": "Max displayed features",
+          "default": 3
+        },
+        {
+          "type": "select",
+          "id": "fontsize",
+          "label": "Font size",
+          "default": "medium",
+          "options": [
+            {
+              "value": "small",
+              "label": "Smaller"
+            },
+            {
+              "value": "smaller",
+              "label": "Small"
+            },
+            {
+              "value": "medium",
+              "label": "Medium"
+            },
+            {
+              "value": "large",
+              "label": "Large"
+            },
+            {
+              "value": "larger",
+              "label": "Larger"
+            }
+          ]
         }
       ]
     },
@@ -895,41 +1111,11 @@
       "limit": 1,
       "settings": [
         {
-          "type": "select",
-          "id": "picker_type",
-          "options": [
-            {
-              "value": "dropdown",
-              "label": "t:sections.DAMIR.blocks.variant_picker.settings.picker_type.options__1.label"
-            },
-            {
-              "value": "button",
-              "label": "t:sections.DAMIR.blocks.variant_picker.settings.picker_type.options__2.label"
-            }
-          ],
-          "default": "button",
-          "label": "t:sections.DAMIR.blocks.variant_picker.settings.picker_type.label"
-        },
-        {
-          "id": "swatch_shape",
-          "label": "t:sections.DAMIR.blocks.variant_picker.settings.swatch_shape.label",
-          "type": "select",
-          "info": "t:sections.DAMIR.blocks.variant_picker.settings.swatch_shape.info",
-          "options": [
-            {
-              "value": "circle",
-              "label": "t:sections.DAMIR.blocks.variant_picker.settings.swatch_shape.options__1.label"
-            },
-            {
-              "value": "square",
-              "label": "t:sections.DAMIR.blocks.variant_picker.settings.swatch_shape.options__2.label"
-            },
-            {
-              "value": "none",
-              "label": "t:sections.main-product.blocks.variant_picker.settings.swatch_shape.options__3.label"
-            }
-          ],
-          "default": "circle"
+          "type": "checkbox",
+          "id": "show_color_name",
+          "default": false,
+          "label": "Show swatch names",
+          "info": "Control whether swatch names are shown or not"
         }
       ]
     },
@@ -1702,10 +1888,6 @@
       "id": "image_zoom",
       "options": [
         {
-          "value": "lightbox",
-          "label": "t:sections.main-product.settings.image_zoom.options__1.label"
-        },
-        {
           "value": "hover",
           "label": "t:sections.main-product.settings.image_zoom.options__2.label"
         },
@@ -1714,14 +1896,14 @@
           "label": "t:sections.main-product.settings.image_zoom.options__3.label"
         }
       ],
-      "default": "lightbox",
+      "default": "hover",
       "label": "t:sections.main-product.settings.image_zoom.label",
       "info": "t:sections.main-product.settings.image_zoom.info"
     },
     {
       "type": "checkbox",
       "id": "hide_variants",
-      "default": false,
+      "default": true,
       "label": "t:sections.main-product.settings.hide_variants.label"
     },
     {
@@ -1763,13 +1945,19 @@
           "type": "title"
         },
         {
-          "type": "description"
+          "type": "metafields-list"
+        },
+        {
+          "type": "variant_picker"
         },
         {
           "type": "price"
+        },
+        {
+          "type": "buy_buttons"
         }, 
         {
-          "type": "list"
+          "type": "description"
         }
       ]
     }

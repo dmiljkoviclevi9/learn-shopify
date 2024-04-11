@@ -1,0 +1,35 @@
+{{ 'color-swatch.css' | asset_url | stylesheet_tag }}
+
+{% assign all_colors = product.variants | map: 'option1' | uniq %}
+{% for option in product.options_with_values %}
+    {% if option.name == 'Color' %}
+
+        <div class="color-swatches">
+            {% for color in all_colors %}
+              {% assign variants_with_color = product.variants | where: 'option1', color %}
+              {% if variants_with_color.size > 0 %}
+                {% assign variant = variants_with_color.first %}
+                {% assign style = variant.metafields.custom.swatch %}
+                {% assign color_value = variant.metafields.custom.color %}
+                <div class="color-swatch-container">
+                    <label class="color-swatch" style="{% if style != blank %}background-image: url('{{ style | file_url }}');{% else %}background-color: {{ color_value }};{% endif %}">
+                      <input type="radio" name="id" value="{{ color | replace: ' ','-' | downcase}}" {% if forloop.first %}checked{% endif %}>
+                    </label>
+                    <div class="color-name{% if settings.show_color_name %} show-name{% endif %}">{{ color }}</div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+          
+    {% endif %}
+{% endfor %}
+
+{% for option in product.options_with_values %}
+  {% if option.name == 'Size' %}
+    <div class="size-options">
+      {% for value in option.values %}
+        <button class="size-option" data-size="{{ value }}">{{ value }}</button>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endfor %}
