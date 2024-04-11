@@ -67,10 +67,75 @@
         "padding_top": 44,
         "padding_bottom": 36
       }
+    },
+    "damir_NzXtjF": {
+      "type": "DAMIR",
+      "blocks": {
+        "title_wDUWN9": {
+          "type": "title",
+          "settings": {
+            "heading_size": "h1"
+          }
+        },
+        "metafields_list_dNnGEz": {
+          "type": "metafields-list",
+          "settings": {
+            "limit": 3,
+            "fontsize": "medium"
+          }
+        },
+        "variant_picker_H94FFH": {
+          "type": "variant_picker",
+          "settings": {
+            "show_color_name": false
+          }
+        },
+        "price_XPyq6g": {
+          "type": "price",
+          "settings": {
+          }
+        },
+        "buy_buttons_YLHqRy": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_dynamic_checkout": true,
+            "show_gift_card_recipient": true
+          }
+        },
+        "description_HtmfbJ": {
+          "type": "description",
+          "settings": {
+            "text_alignment": "left"
+          }
+        }
+      },
+      "block_order": [
+        "title_wDUWN9",
+        "metafields_list_dNnGEz",
+        "variant_picker_H94FFH",
+        "price_XPyq6g",
+        "buy_buttons_YLHqRy",
+        "description_HtmfbJ"
+      ],
+      "settings": {
+        "product": "avalanche-skyrider",
+        "color_scheme": "",
+        "secondary_background": false,
+        "media_size": "medium",
+        "constrain_to_viewport": true,
+        "media_fit": "contain",
+        "media_position": "left",
+        "image_zoom": "hover",
+        "hide_variants": true,
+        "enable_video_looping": false,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
     }
   },
   "order": [
     "image_banner",
-    "featured_collection"
+    "featured_collection",
+    "damir_NzXtjF"
   ]
 }
